@@ -2,32 +2,51 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>LoLOS 27 — Liquid Loll</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
+  /* Фон на html — чтобы не было белизны сверху */
+  html {
+    background: #1a1a2e;
+    height: 100%;
+    overflow: hidden;
+  }
+  
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
     background: linear-gradient(135deg, #2a2a35 0%, #3a3a45 50%, #2a2a35 100%);
+    background-attachment: fixed;
     color: #fff;
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 180px 20px 40px;
+    justify-content: flex-start;
     position: relative;
+    /* Отступы под безопасные зоны iPhone */
+    padding-top: calc(env(safe-area-inset-top, 0px) + 80px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
   }
 
   /* ============================================================
      DYNAMIC ISLAND
      Обычный = овальный. Активный = круглый шар. Расширенный = карточка.
+     Позиция учитывает safe-area-inset-top
      ============================================================ */
   .island-container {
     position: fixed;
-    top: 14px;
+    top: calc(env(safe-area-inset-top, 14px) + 2px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -53,7 +72,6 @@
     justify-content: center;
   }
 
-  /* АКТИВАЦИЯ — превращается в круглый шар */
   .island.active {
     width: 340px;
     height: 340px;
@@ -65,7 +83,6 @@
       inset 0 30px 40px rgba(0,0,0,0.4);
   }
 
-  /* РАСШИРЕНИЕ — карточка с ответом */
   .island.expanded {
     width: 92vw;
     max-width: 440px;
@@ -78,7 +95,6 @@
     justify-content: center;
   }
 
-  /* Волновой градиент — фиолетовый ↔ жёлтый, вверх-вниз */
   .island-wave {
     position: absolute;
     inset: 0;
@@ -247,6 +263,7 @@
     background: linear-gradient(135deg, #a78bfa, #feca57);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 4px;
   }
 
@@ -258,7 +275,6 @@
     margin-bottom: 24px;
   }
 
-  /* Автоопределение */
   .auto-detect {
     background: rgba(76,175,80,0.1);
     border: 1px solid rgba(76,175,80,0.3);
@@ -289,10 +305,10 @@
     font-family: inherit;
   }
 
-  /* Карточка выбора iPhone */
   .device-card {
     background: rgba(255,255,255,0.06);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 24px;
     padding: 20px 16px;
@@ -316,7 +332,6 @@
     gap: 6px;
   }
 
-  /* Группа моделей */
   .device-group {
     margin-bottom: 6px;
   }
@@ -382,7 +397,6 @@
     color: #ff6b6b;
   }
 
-  /* Кнопки */
   .btn {
     width: 100%;
     padding: 16px 24px;
@@ -445,9 +459,6 @@
 </head>
 <body>
 
-<!-- ============================================================
-     DYNAMIC ISLAND
-     ============================================================ -->
 <div class="island-container">
   <div class="island" id="island">
     <div class="island-wave"></div>
@@ -461,25 +472,19 @@
   </div>
 </div>
 
-<!-- ============================================================
-     ОСНОВНОЙ ЭКРАН
-     ============================================================ -->
 <div class="main">
   <div class="logo">LoLOS 27</div>
   <div class="subtitle">Liquid Loll</div>
 
-  <!-- Автоопределение -->
   <div class="auto-detect hidden" id="autoDetect">
     <span>Обнаружено: <span class="detected-name" id="detectedName">—</span></span>
     <button onclick="applyAutoDetect()">Применить</button>
   </div>
 
-  <!-- Шаг 1: Выбор iPhone -->
   <div class="device-card" id="step1">
     <h3>📱 Выбери свой iPhone</h3>
     <div class="device-options">
 
-      <!-- iPhone 17 серия -->
       <div class="device-group">
         <div class="device-group-label">iPhone 17 (2025)</div>
         <div class="device-option" data-model="17" onclick="selectDevice('17', this)">
@@ -500,7 +505,6 @@
         </div>
       </div>
 
-      <!-- iPhone 16 серия -->
       <div class="device-group">
         <div class="device-group-label">iPhone 16 (2024)</div>
         <div class="device-option" data-model="16" onclick="selectDevice('16', this)">
@@ -517,7 +521,6 @@
         </div>
       </div>
 
-      <!-- iPhone 15 серия -->
       <div class="device-group">
         <div class="device-group-label">iPhone 15 (2023)</div>
         <div class="device-option" data-model="15" onclick="selectDevice('15', this)">
@@ -534,7 +537,6 @@
         </div>
       </div>
 
-      <!-- iPhone 14 серия -->
       <div class="device-group">
         <div class="device-group-label">iPhone 14 (2022)</div>
         <div class="device-option" data-model="14pro" onclick="selectDevice('14pro', this)">
@@ -547,7 +549,6 @@
         </div>
       </div>
 
-      <!-- Другое -->
       <div class="device-group">
         <div class="device-group-label">Другое</div>
         <div class="device-option" data-model="other" onclick="selectDevice('other', this)">
@@ -559,7 +560,6 @@
     </div>
   </div>
 
-  <!-- Шаг 2: Активация датчиков -->
   <div class="device-card hidden" id="step2">
     <h3>📳 Вызов ассистента</h3>
     <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
@@ -576,7 +576,6 @@
     </div>
   </div>
 
-  <!-- Шаг 3: Тест -->
   <div class="device-card hidden" id="step3">
     <h3>🎤 Тест ассистента</h3>
     <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
@@ -593,34 +592,22 @@
 </div>
 
 <script>
-// ============================================================
-// СПРАВОЧНИК МОДЕЛЕЙ (для автоопределения по размеру экрана)
-// ============================================================
+// ... (весь JS из предыдущего кода без изменений)
 const DEVICE_DATABASE = [
-  // iPhone 17 series (2025)
   { model: '17',        name: 'iPhone 17',                 w: 402, h: 874, supported: true },
   { model: '17pro',     name: 'iPhone 17 Pro',             w: 402, h: 874, supported: true },
   { model: '17promax',  name: 'iPhone 17 Pro Max',         w: 440, h: 956, supported: true },
   { model: 'air',       name: 'iPhone Air',                w: 420, h: 912, supported: true },
-
-  // iPhone 16 series (2024)
   { model: '16',        name: 'iPhone 16 / 16 Plus',       w: 393, h: 852, supported: true },
   { model: '16pro',     name: 'iPhone 16 Pro / Pro Max',   w: 402, h: 874, supported: true },
   { model: '16e',       name: 'iPhone 16e',                w: 390, h: 844, supported: false },
-
-  // iPhone 15 series (2023)
   { model: '15',        name: 'iPhone 15 / 15 Plus',       w: 393, h: 852, supported: true },
   { model: '15pro',     name: 'iPhone 15 Pro',             w: 393, h: 852, supported: true },
   { model: '15promax',  name: 'iPhone 15 Pro Max',         w: 430, h: 932, supported: true },
-
-  // iPhone 14 series (2022)
   { model: '14pro',     name: 'iPhone 14 Pro',             w: 393, h: 852, supported: true },
   { model: '14promax',  name: 'iPhone 14 Pro Max',         w: 430, h: 932, supported: true },
 ];
 
-// ============================================================
-// СОСТОЯНИЕ
-// ============================================================
 let selectedDevice = null;
 let deviceSupported = false;
 let motionEnabled = false;
@@ -629,69 +616,43 @@ let lastX = 0, lastY = 0, lastZ = 0;
 let lastShakeTime = 0;
 const SHAKE_THRESHOLD = 18;
 
-// ============================================================
-// АВТООПРЕДЕЛЕНИЕ УСТРОЙСТВА
-// ============================================================
 function autoDetectDevice() {
   const sw = window.screen.width;
   const sh = window.screen.height;
-  const dpr = window.devicePixelRatio || 1;
-
   const isIPhone = /iPhone/.test(navigator.userAgent) ||
                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
   if (!isIPhone) return null;
-
-  // Ищем совпадение по размерам экрана
   for (const d of DEVICE_DATABASE) {
-    if (sw === d.w && sh === d.h) {
-      return { ...d, dpr };
-    }
+    if (sw === d.w && sh === d.h) return d;
   }
-
   return { model: 'unknown', name: `iPhone (${sw}×${sh})`, supported: false };
 }
 
 function applyAutoDetect() {
   const info = autoDetectDevice();
   if (!info) return;
-
-  // Ищем элемент с этой моделью
   const el = document.querySelector(`.device-option[data-model="${info.model}"]`);
   if (el) {
     selectDevice(info.model, el);
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } else {
-    // Модель не найдена в списке — выбираем "Другой iPhone"
     const other = document.querySelector('.device-option[data-model="other"]');
     if (other) selectDevice('other', other);
   }
 }
 
-// ============================================================
-// ШАГ 1: ВЫБОР УСТРОЙСТВА
-// ============================================================
 function selectDevice(model, el) {
   document.querySelectorAll('.device-option').forEach(o => o.classList.remove('selected'));
   if (el) el.classList.add('selected');
-
   selectedDevice = model;
-
-  // Поддерживаемые модели
-  const supportedModels = ['17', '17pro', '17promax', 'air',
-                           '16', '16pro',
-                           '15', '15pro', '15promax',
-                           '14pro', '14promax'];
+  const supportedModels = ['17', '17pro', '17promax', 'air', '16', '16pro',
+                           '15', '15pro', '15promax', '14pro', '14promax'];
   deviceSupported = supportedModels.includes(model);
-
-  // Скрываем автоопределение
   document.getElementById('autoDetect').classList.add('hidden');
-
   setTimeout(() => {
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
     document.getElementById('step3').classList.remove('hidden');
-
     if (deviceSupported) {
       updateHint('✅ Устройство поддерживает Dynamic Island. Нажми кнопку ниже.', 'success');
     } else {
@@ -700,15 +661,11 @@ function selectDevice(model, el) {
   }, 200);
 }
 
-// ============================================================
-// ШАГ 2: ДАТЧИКИ ДВИЖЕНИЯ
-// ============================================================
 async function enableMotion() {
   if (typeof DeviceMotionEvent === 'undefined') {
     updateHint('❌ Браузер не поддерживает датчики движения', 'error');
     return;
   }
-
   if (typeof DeviceMotionEvent.requestPermission === 'function') {
     try {
       const permission = await DeviceMotionEvent.requestPermission();
@@ -721,7 +678,6 @@ async function enableMotion() {
       return;
     }
   }
-
   window.addEventListener('devicemotion', onMotion);
   motionEnabled = true;
   document.getElementById('enableBtn').classList.add('hidden');
@@ -742,11 +698,9 @@ function onMotion(event) {
   if (!motionEnabled) return;
   const acc = event.accelerationIncludingGravity;
   if (!acc) return;
-
   const x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
   const delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
   lastX = x; lastY = y; lastZ = z;
-
   if (delta > SHAKE_THRESHOLD) {
     const now = Date.now();
     if (now - lastShakeTime > 1500) {
@@ -762,13 +716,9 @@ function updateHint(text, type = '') {
   el.className = 'hint' + (type ? ' ' + type : '');
 }
 
-// ============================================================
-// ШАГ 3: АССИСТЕНТ
-// ============================================================
 function triggerAssistant() {
   if (shakeDetected) return;
   shakeDetected = true;
-
   openIsland('🎤 Слушаю...');
   startRecognition();
 }
@@ -777,15 +727,11 @@ function openIsland(text) {
   const island = document.getElementById('island');
   const status = document.getElementById('islandStatus');
   const response = document.getElementById('islandResponse');
-
   island.classList.add('active');
   status.textContent = 'Слушаю';
   status.classList.add('listening');
   response.textContent = text;
-
-  setTimeout(() => {
-    island.classList.add('expanded');
-  }, 250);
+  setTimeout(() => { island.classList.add('expanded'); }, 250);
 }
 
 function closeIsland() {
@@ -802,39 +748,27 @@ function setResponse(text) {
   document.getElementById('islandResponse').textContent = text;
 }
 
-// ============================================================
-// РАСПОЗНАВАНИЕ РЕЧИ
-// ============================================================
 async function startRecognition() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       recognition.lang = 'ru-RU';
       recognition.interimResults = false;
       recognition.continuous = false;
-
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setResponse('Ты сказал: "' + transcript + '"');
         stream.getTracks().forEach(t => t.stop());
         setTimeout(closeIsland, 4000);
       };
-
       recognition.onerror = (event) => {
         stream.getTracks().forEach(t => t.stop());
         handleRecognitionError(event.error);
       };
-
-      try {
-        recognition.start();
-        return;
-      } catch (e) {
-        handleRecognitionError(e.message);
-        stream.getTracks().forEach(t => t.stop());
-      }
+      try { recognition.start(); return; }
+      catch (e) { handleRecognitionError(e.message); stream.getTracks().forEach(t => t.stop()); }
     } else {
       stream.getTracks().forEach(t => t.stop());
       handleRecognitionError('not-supported');
@@ -846,33 +780,22 @@ async function startRecognition() {
 }
 
 function handleRecognitionError(error) {
-  if (error === 'service-not-allowed') {
-    setResponse('⚠️ Микрофон недоступен. Используй поле ниже.');
-  } else if (error === 'not-allowed') {
-    setResponse('⚠️ Нет доступа к микрофону.');
-  } else if (error === 'no-speech') {
-    setResponse('🤔 Ничего не услышал.');
-  } else {
-    setResponse('❌ Ошибка: ' + error);
-  }
+  if (error === 'service-not-allowed') setResponse('⚠️ Микрофон недоступен. Используй поле ниже.');
+  else if (error === 'not-allowed') setResponse('⚠️ Нет доступа к микрофону.');
+  else if (error === 'no-speech') setResponse('🤔 Ничего не услышал.');
+  else setResponse('❌ Ошибка: ' + error);
   setTimeout(closeIsland, 3500);
 }
 
-// ============================================================
-// РУЧНОЙ ВВОД
-// ============================================================
 function sendManual() {
   const input = document.getElementById('manualInput');
   const text = input.value.trim();
   if (!text) return;
-
   input.value = '';
   openIsland('💬 "' + text + '"');
-
   setTimeout(() => {
     setResponse('Привет! Я LoLi, слышу тебя: "' + text + '". Чем помочь?');
   }, 800);
-
   setTimeout(closeIsland, 5000);
 }
 
@@ -880,9 +803,6 @@ document.getElementById('manualInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') sendManual();
 });
 
-// ============================================================
-// ЗАКРЫТИЕ ПРИ КЛИКЕ ВНЕ ОСТРОВА
-// ============================================================
 document.addEventListener('click', (e) => {
   const island = document.getElementById('island');
   if (island.classList.contains('expanded') && !island.contains(e.target)) {
@@ -890,27 +810,14 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ============================================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================================
 window.addEventListener('load', () => {
   console.log('🌊 LoLOS 27 — Liquid Loll');
-  console.log('📱 Dynamic Island Assistant Test');
-
-  // Автоопределение
   const detected = autoDetectDevice();
-  if (detected && detected.model !== 'unknown') {
+  if (detected) {
     const autoEl = document.getElementById('autoDetect');
     const nameEl = document.getElementById('detectedName');
     autoEl.classList.remove('hidden');
-    nameEl.textContent = detected.name;
-    window._autoDetected = detected;
-    console.log('🔍 Автоопределение:', detected);
-  } else if (detected) {
-    const autoEl = document.getElementById('autoDetect');
-    const nameEl = document.getElementById('detectedName');
-    autoEl.classList.remove('hidden');
-    nameEl.textContent = detected.name + ' (не точно)';
+    nameEl.textContent = detected.name + (detected.model === 'unknown' ? ' (не точно)' : '');
     window._autoDetected = detected;
   }
 });
