@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a1a2e">
+<meta name="theme-color" content="#000000">
 <title>LoLOS 27 — Liquid Loll</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   html, body {
-    background: #0f0f1a;
+    background: #000;
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -28,65 +28,67 @@
   }
 
   /* ============================================================
-     РАМКА — сине-фиолетовая подсветка при тряске
+     РАМКА — скруглённые углы, переливается
      ============================================================ */
   .frame {
     position: fixed;
-    inset: 0;
+    inset: 8px;
+    border-radius: 48px;
     pointer-events: none;
-    z-index: 999;
+    z-index: 9999;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s ease;
+    padding: 5px;
   }
 
   .frame.active {
     opacity: 1;
   }
 
-  /* Свечение по краям */
   .frame::before {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: 48px;
+    background: linear-gradient(
+      90deg,
+      #4a90e2 0%,
+      #6b4ee6 20%,
+      #a78bfa 40%,
+      #feca57 60%,
+      #ff9a56 80%,
+      #4a90e2 100%
+    );
+    background-size: 300% 100%;
+    animation: frameGradient 5s linear infinite;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
     box-shadow:
-      inset 0 0 0 4px #6b4ee6,
-      inset 0 0 40px rgba(107, 78, 230, 0.6),
-      inset 0 0 100px rgba(107, 78, 230, 0.3);
-    border-radius: 12px;
-    animation: framePulse 2s ease-in-out infinite;
+      0 0 30px rgba(107, 78, 230, 0.5),
+      0 0 60px rgba(167, 139, 250, 0.3);
   }
 
-  /* Внешнее свечение */
-  .frame::after {
-    content: '';
-    position: absolute;
-    inset: -20px;
-    background: radial-gradient(ellipse at center,
-      transparent 60%,
-      rgba(107, 78, 230, 0.3) 100%);
-    filter: blur(20px);
-    animation: framePulse 2s ease-in-out infinite;
+  @keyframes frameGradient {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
   }
 
-  @keyframes framePulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
-  }
-
-  /* Внутреннее свечение при разговоре (громкость) */
   .frame.speaking::before {
     box-shadow:
-      inset 0 0 0 4px #a78bfa,
-      inset 0 0 60px rgba(167, 139, 250, 0.8),
-      inset 0 0 150px rgba(167, 139, 250, 0.4);
+      0 0 60px rgba(167, 139, 250, 0.8),
+      0 0 100px rgba(167, 139, 250, 0.5);
   }
 
   /* ============================================================
-     ЦЕНТРАЛЬНЫЙ ЛОГОТИП (пока ничего не происходит)
+     ЛОГОТИП
      ============================================================ */
   .center-logo {
     text-align: center;
     transition: opacity 0.4s, transform 0.4s;
+    padding: 0 30px;
   }
 
   .center-logo.hidden {
@@ -110,20 +112,19 @@
     letter-spacing: 6px;
     text-transform: uppercase;
     color: rgba(255,255,255,0.4);
-    margin-bottom: 24px;
+    margin-bottom: 32px;
   }
 
   .instruction {
     font-size: 0.9rem;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.55);
     line-height: 1.6;
-    padding: 0 30px;
   }
 
   .instruction .emoji {
-    font-size: 2rem;
+    font-size: 2.2rem;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     animation: shakeEmoji 1.5s ease-in-out infinite;
   }
 
@@ -133,14 +134,13 @@
     75% { transform: rotate(15deg); }
   }
 
-  /* Кнопка запуска (нужна для разрешения датчиков) */
   .start-btn {
-    margin-top: 24px;
-    padding: 16px 32px;
+    margin-top: 28px;
+    padding: 16px 36px;
     background: linear-gradient(135deg, #6b4ee6, #a78bfa);
     color: #fff;
     border: none;
-    border-radius: 16px;
+    border-radius: 18px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
@@ -150,123 +150,29 @@
   }
 
   .start-btn:active { transform: scale(0.96); }
-
   .start-btn.hidden { display: none; }
 
   /* ============================================================
-     НИЖНЯЯ ПАНЕЛЬ — что сказал + ответ
+     ИНДИКАТОР "СЛУШАЮ"
      ============================================================ */
-  .bottom-panel {
-    position: fixed;
-    left: 16px;
-    right: 16px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    pointer-events: none;
-  }
-
-  .bottom-panel.active {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .bubble {
-    background: rgba(20, 20, 40, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(107, 78, 230, 0.3);
-    border-radius: 18px;
-    padding: 14px 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    animation: bubbleIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-  }
-
-  @keyframes bubbleIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.95); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .bubble .label {
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(167, 139, 250, 0.8);
-    margin-bottom: 6px;
-  }
-
-  .bubble .text {
-    font-size: 1rem;
-    line-height: 1.4;
-    color: #fff;
-    word-wrap: break-word;
-  }
-
-  /* Пузырь "ты сказал" */
-  .bubble.user {
-    border-color: rgba(167, 139, 250, 0.4);
-  }
-
-  .bubble.user .label {
-    color: rgba(167, 139, 250, 1);
-  }
-
-  /* Пузырь "ответ" */
-  .bubble.bot {
-    border-color: rgba(254, 202, 87, 0.3);
-  }
-
-  .bubble.bot .label {
-    color: rgba(254, 202, 87, 0.9);
-  }
-
-  /* Точки "печатает" */
-  .typing {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-  }
-  .typing span {
-    width: 6px;
-    height: 6px;
-    background: rgba(167, 139, 250, 0.8);
-    border-radius: 50%;
-    animation: typing 1.2s ease-in-out infinite;
-  }
-  .typing span:nth-child(2) { animation-delay: 0.2s; }
-  .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
-
-  /* Индикатор "слушаю" */
   .listening-indicator {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    top: calc(env(safe-area-inset-top, 0px) + 30px);
     left: 50%;
-    transform: translateX(-50%);
-    background: rgba(20, 20, 40, 0.85);
+    transform: translate(-50%, -20px);
+    background: rgba(20, 20, 40, 0.9);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(107, 78, 230, 0.4);
     border-radius: 30px;
-    padding: 10px 20px;
+    padding: 10px 22px;
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.8);
-    z-index: 1001;
+    color: rgba(255,255,255,0.9);
+    z-index: 10000;
     opacity: 0;
-    transform: translate(-50%, -20px);
     transition: all 0.4s ease;
     pointer-events: none;
   }
@@ -285,17 +191,99 @@
   }
 
   @keyframes listeningPulse {
-    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.6); }
-    50% { opacity: 0.6; transform: scale(1.2); box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); }
   }
 
-  /* Ручной ввод — фолбэк */
+  /* ============================================================
+     НИЖНЯЯ ПАНЕЛЬ
+     ============================================================ */
+  .bottom-panel {
+    position: fixed;
+    left: 20px;
+    right: 20px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 30px);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .bottom-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .bubble {
+    background: rgba(20, 20, 40, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    animation: bubbleIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .bubble .label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .bubble .text {
+    font-size: 1rem;
+    line-height: 1.45;
+    color: #fff;
+    word-wrap: break-word;
+  }
+
+  .bubble.user { border: 1px solid rgba(167, 139, 250, 0.4); }
+  .bubble.user .label { color: rgba(167, 139, 250, 1); }
+
+  .bubble.bot { border: 1px solid rgba(254, 202, 87, 0.35); }
+  .bubble.bot .label { color: rgba(254, 202, 87, 0.9); }
+
+  .typing {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .typing span {
+    width: 7px;
+    height: 7px;
+    background: rgba(167, 139, 250, 0.8);
+    border-radius: 50%;
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ============================================================
+     РУЧНОЙ ВВОД
+     ============================================================ */
   .manual-wrap {
     position: fixed;
-    left: 16px;
-    right: 16px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-    z-index: 1001;
+    left: 20px;
+    right: 20px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 30px);
+    z-index: 10002;
     display: none;
     gap: 8px;
   }
@@ -307,22 +295,20 @@
   .manual-wrap input {
     flex: 1;
     padding: 14px 16px;
-    border-radius: 14px;
-    border: 1px solid rgba(107, 78, 230, 0.4);
-    background: rgba(20, 20, 40, 0.9);
+    border-radius: 16px;
+    border: 1px solid rgba(107, 78, 230, 0.5);
+    background: rgba(20, 20, 40, 0.95);
     color: #fff;
     font-size: 1rem;
     font-family: inherit;
     outline: none;
   }
 
-  .manual-wrap input:focus {
-    border-color: #a78bfa;
-  }
+  .manual-wrap input:focus { border-color: #a78bfa; }
 
   .manual-wrap button {
-    padding: 0 20px;
-    border-radius: 14px;
+    padding: 0 22px;
+    border-radius: 16px;
     border: none;
     background: linear-gradient(135deg, #6b4ee6, #a78bfa);
     color: #fff;
@@ -334,29 +320,25 @@
 </head>
 <body>
 
-<!-- Рамка подсветки -->
 <div class="frame" id="frame"></div>
 
-<!-- Индикатор "слушаю" -->
 <div class="listening-indicator" id="listeningIndicator">
   <div class="listening-dot"></div>
   <span>Слушаю...</span>
 </div>
 
-<!-- Центральный логотип -->
 <div class="center-logo" id="centerLogo">
   <div class="logo">LoLOS 27</div>
   <div class="subtitle">Liquid Loll</div>
   <div class="instruction">
     <span class="emoji">📳</span>
-    Нажми кнопку ниже, разреши доступ к датчикам и тряхни телефон
+    Нажми кнопку, разреши доступ к датчикам<br>и тряхни телефон
   </div>
   <button class="start-btn" id="startBtn" onclick="enableMotion()">
     📳 Активировать
   </button>
 </div>
 
-<!-- Нижняя панель: что сказал + ответ -->
 <div class="bottom-panel" id="bottomPanel">
   <div class="bubble user" id="userBubble" style="display:none;">
     <div class="label">🎤 Ты сказал</div>
@@ -368,7 +350,6 @@
   </div>
 </div>
 
-<!-- Ручной ввод -->
 <div class="manual-wrap" id="manualWrap">
   <input type="text" id="manualInput" placeholder="Напиши здесь...">
   <button onclick="sendManual()">➤</button>
@@ -384,6 +365,12 @@
   var lastShakeTime = 0;
   var SHAKE_THRESHOLD = 18;
 
+  // Глобальные переменные для управления распознаванием
+  var activeRecognition = null;
+  var silenceTimer = null;
+  var responseTimer = null;
+  var closeTimer = null;
+
   // ============================================================
   // АКТИВАЦИЯ ДАТЧИКОВ
   // ============================================================
@@ -395,7 +382,6 @@
       return;
     }
 
-    // iOS 13+ требует разрешение
     if (typeof DeviceMotionEvent.requestPermission === 'function') {
       try {
         var permission = await DeviceMotionEvent.requestPermission();
@@ -411,14 +397,11 @@
 
     window.addEventListener('devicemotion', onMotion);
     motionEnabled = true;
-
     btn.classList.add('hidden');
 
     var logo = document.getElementById('centerLogo');
     logo.querySelector('.instruction').innerHTML =
       '<span class="emoji">✅</span>Датчики активны!<br>Тряхни телефон';
-
-    console.log('✅ Датчики активированы');
   }
 
   // ============================================================
@@ -444,68 +427,102 @@
   }
 
   // ============================================================
-  // ЗАПУСК АССИСТЕНТА
+  // ЗАПУСК АССИСТЕНТА — СБРАСЫВАЕМ ВСЁ И НАЧИНАЕМ ЗАНОВО
   // ============================================================
   function triggerAssistant() {
     if (isProcessing) return;
     isProcessing = true;
 
-    // 1. Показываем сине-фиолетовую рамку
+    // Сбрасываем предыдущее состояние
+    resetRecognition();
+    clearAllTimers();
+
+    // Показываем рамку
     document.getElementById('frame').classList.add('active');
 
-    // 2. Прячем логотип
+    // Прячем логотип
     document.getElementById('centerLogo').classList.add('hidden');
 
-    // 3. Показываем индикатор "Слушаю"
+    // Показываем "Слушаю"
     document.getElementById('listeningIndicator').classList.add('active');
 
-    // 4. Очищаем панель
+    // Очищаем панель
     document.getElementById('bottomPanel').classList.remove('active');
     document.getElementById('userBubble').style.display = 'none';
     document.getElementById('botBubble').style.display = 'none';
+    document.getElementById('botText').innerHTML = '';
 
-    // 5. Стартуем распознавание
-    startRecognition();
+    // Прячем ручной ввод, если был
+    document.getElementById('manualWrap').classList.remove('active');
+
+    // Небольшая задержка перед стартом — чтобы DOM обновился
+    setTimeout(function() {
+      startRecognition();
+    }, 300);
   }
 
   // ============================================================
-  // РАСПОЗНАВАНИЕ РЕЧИ
+  // СБРОС ПРЕДЫДУЩЕГО РАСПОЗНАВАНИЯ
+  // ============================================================
+  function resetRecognition() {
+    if (activeRecognition) {
+      try {
+        activeRecognition.abort();
+        activeRecognition.stop();
+      } catch (e) {}
+      activeRecognition = null;
+    }
+    if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+    if (responseTimer) { clearTimeout(responseTimer); responseTimer = null; }
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+  }
+
+  function clearAllTimers() {
+    if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+    if (responseTimer) { clearTimeout(responseTimer); responseTimer = null; }
+    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+  }
+
+  // ============================================================
+  // РАСПОЗНАВАНИЕ РЕЧИ — НОВЫЙ ЭКЗЕМПЛЯР КАЖДЫЙ РАЗ
   // ============================================================
   function startRecognition() {
-    // Проверяем поддержку
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SR) {
-      // Нет поддержки — показываем ручной ввод
       showManualInput('⚠️ Микрофон недоступен. Напиши текстом.');
       return;
     }
 
-    var recognition = new SR();
-    recognition.lang = 'ru-RU';
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
+    // ВАЖНО: создаём НОВЫЙ экземпляр каждый раз
+    activeRecognition = new SR();
+    activeRecognition.lang = 'ru-RU';
+    activeRecognition.interimResults = false;
+    activeRecognition.continuous = false;
+    activeRecognition.maxAlternatives = 1;
 
     var gotResult = false;
-    var silenceTimer = setTimeout(function() {
-      // Если через 10 секунд ничего не услышали — предлагаем ручной ввод
+
+    // Таймер тишины — 10 секунд
+    silenceTimer = setTimeout(function() {
       if (!gotResult) {
-        try { recognition.stop(); } catch (e) {}
+        try { activeRecognition.stop(); } catch (e) {}
         showManualInput('🤔 Ничего не услышал. Напиши текстом.');
       }
     }, 10000);
 
-    recognition.onresult = function(event) {
+    activeRecognition.onresult = function(event) {
       gotResult = true;
-      clearTimeout(silenceTimer);
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
       var transcript = event.results[0][0].transcript;
       handleUserSpeech(transcript);
     };
 
-    recognition.onerror = function(event) {
-      clearTimeout(silenceTimer);
-      console.error('Ошибка распознавания:', event.error);
+    activeRecognition.onerror = function(event) {
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+
+      // Игнорируем ошибку "aborted" — это мы сами прервали
+      if (event.error === 'aborted') return;
 
       if (event.error === 'not-allowed') {
         showManualInput('⚠️ Нет доступа к микрофону. Напиши текстом.');
@@ -518,50 +535,39 @@
       }
     };
 
-    recognition.onend = function() {
-      clearTimeout(silenceTimer);
-      if (!gotResult) {
-        // Ничего не распознали — показываем ручной ввод
+    activeRecognition.onend = function() {
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+      if (!gotResult && isProcessing) {
         showManualInput('🤔 Не расслышал. Напиши текстом.');
       }
     };
 
     try {
-      recognition.start();
-      console.log('🎤 Слушаю...');
+      activeRecognition.start();
+      console.log('🎤 Микрофон запущен (новый экземпляр)');
     } catch (e) {
-      clearTimeout(silenceTimer);
+      console.error('❌ Ошибка запуска микрофона:', e);
       showManualInput('❌ Не удалось запустить микрофон. Напиши текстом.');
     }
   }
 
   // ============================================================
-  // ОБРАБОТКА ГОЛОСА — показываем что сказал + отвечаем
+  // ОБРАБОТКА ГОЛОСА
   // ============================================================
   function handleUserSpeech(text) {
-    // Убираем индикатор "Слушаю"
     document.getElementById('listeningIndicator').classList.remove('active');
 
-    // Показываем, что сказал пользователь
     document.getElementById('userText').textContent = text;
     document.getElementById('userBubble').style.display = 'block';
-
-    // Показываем панель
     document.getElementById('bottomPanel').classList.add('active');
 
-    // Даём боту "подумать" и отвечаем
-    setTimeout(function() {
-      showBotTyping();
-    }, 400);
+    responseTimer = setTimeout(showBotTyping, 400);
 
     setTimeout(function() {
       showBotResponse(text);
     }, 1800);
   }
 
-  // ============================================================
-  // БОТ "ПЕЧАТАЕТ"
-  // ============================================================
   function showBotTyping() {
     var botBubble = document.getElementById('botBubble');
     var botText = document.getElementById('botText');
@@ -569,30 +575,24 @@
     botText.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
   }
 
-  // ============================================================
-  // ОТВЕТ БОТА
-  // ============================================================
   function showBotResponse(userSaid) {
     var answer = generateAnswer(userSaid);
     document.getElementById('botText').textContent = answer;
 
-    // Небольшая анимация "говорит"
     var frame = document.getElementById('frame');
     frame.classList.add('speaking');
 
-    // Озвучка (если поддерживается)
     speak(answer);
 
     setTimeout(function() {
       frame.classList.remove('speaking');
     }, 3000);
 
-    // Через 6 секунд закрываем всё
-    setTimeout(closeAll, 6000);
+    closeTimer = setTimeout(closeAll, 6000);
   }
 
   // ============================================================
-  // ГЕНЕРАТОР ОТВЕТА (заглушка — можно подключить Groq/GigaChat)
+  // ГЕНЕРАТОР ОТВЕТА
   // ============================================================
   function generateAnswer(userText) {
     var t = userText.toLowerCase();
@@ -620,7 +620,6 @@
       return 'Пока! Буду ждать следующего вызова 👋';
     }
 
-    // По умолчанию
     var answers = [
       'Понял тебя! Говоришь: "' + userText + '". Чем ещё помочь?',
       'Интересно! Расскажи подробнее 🤔',
@@ -631,11 +630,10 @@
   }
 
   // ============================================================
-  // ОЗВУЧКА ОТВЕТА
+  // ОЗВУЧКА
   // ============================================================
   function speak(text) {
     if (!('speechSynthesis' in window)) return;
-
     try {
       window.speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(text);
@@ -644,35 +642,27 @@
       utterance.pitch = 1.1;
       utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn('Озвучка недоступна:', e);
-    }
+    } catch (e) {}
   }
 
   // ============================================================
-  // РУЧНОЙ ВВОД (фолбэк)
+  // РУЧНОЙ ВВОД
   // ============================================================
   function showManualInput(message) {
     document.getElementById('listeningIndicator').classList.remove('active');
-
     var wrap = document.getElementById('manualWrap');
     wrap.classList.add('active');
-
     var input = document.getElementById('manualInput');
     input.placeholder = message || 'Напиши здесь...';
-    input.focus();
-
-    console.log('📝 Ручной ввод:', message);
+    setTimeout(function() { input.focus(); }, 100);
   }
 
   function sendManual() {
     var input = document.getElementById('manualInput');
     var text = input.value.trim();
     if (!text) return;
-
     input.value = '';
     document.getElementById('manualWrap').classList.remove('active');
-
     handleUserSpeech(text);
   }
 
@@ -684,29 +674,44 @@
   // ЗАКРЫТИЕ
   // ============================================================
   function closeAll() {
+    // Сначала сбрасываем распознавание
+    resetRecognition();
+
     document.getElementById('frame').classList.remove('active');
     document.getElementById('bottomPanel').classList.remove('active');
+    document.getElementById('manualWrap').classList.remove('active');
+    document.getElementById('listeningIndicator').classList.remove('active');
     document.getElementById('centerLogo').classList.remove('hidden');
 
     setTimeout(function() {
       document.getElementById('userBubble').style.display = 'none';
       document.getElementById('botBubble').style.display = 'none';
+      document.getElementById('botText').innerHTML = '';
+
+      // ВАЖНО: сбрасываем флаг, чтобы можно было запустить заново
       isProcessing = false;
+
+      console.log('✅ Готов к следующему вызову');
     }, 400);
   }
 
-  // Тап по экрану — закрыть, если открыто
+  // Тап по экрану — закрыть
   document.addEventListener('click', function(e) {
     if (isProcessing && !e.target.closest('.manual-wrap') && !e.target.closest('.start-btn')) {
       closeAll();
     }
   });
 
-  // ============================================================
-  // ИНИЦИАЛИЗАЦИЯ
-  // ============================================================
+  // Очистка при уходе со страницы
+  window.addEventListener('beforeunload', function() {
+    resetRecognition();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  });
+
   console.log('🌊 LoLOS 27 — Liquid Loll');
-  console.log('📳 Нажми "Активировать" и тряхни телефон');
+  console.log('✅ Готов к многократным вызовам');
 </script>
 </body>
 </html>
