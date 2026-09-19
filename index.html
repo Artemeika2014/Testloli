@@ -10,9 +10,6 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  /* ============================================================
-     СТАТИЧНАЯ СТРАНИЦА — БЕЗ СКРОЛЛА ВООБЩЕ
-     ============================================================ */
   html, body {
     background: #1a1a2e !important;
     height: 100%;
@@ -26,7 +23,6 @@
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
     color: #fff;
     background: linear-gradient(135deg, #2a2a35 0%, #3a3a45 50%, #2a2a35 100%) !important;
-    background-attachment: fixed;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,12 +31,8 @@
     position: relative;
   }
 
-  /* ============================================================
-     DYNAMIC ISLAND — точно под системным
-     ============================================================ */
   .island-container {
     position: fixed;
-    /* Точно по центру системного Dynamic Island */
     top: calc(env(safe-area-inset-top, 47px) - 38px);
     left: 50%;
     transform: translateX(-50%);
@@ -58,24 +50,16 @@
     border-radius: 20px;
     overflow: hidden;
     transition: all 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     pointer-events: auto;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
   .island.active {
     width: 340px;
     height: 340px;
     border-radius: 50%;
-    box-shadow:
-      0 20px 60px rgba(0,0,0,0.7),
-      0 0 80px rgba(167,139,250,0.25),
-      inset 0 -30px 60px rgba(255,255,255,0.1),
-      inset 0 30px 40px rgba(0,0,0,0.4);
   }
-
   .island.expanded {
     width: 92vw;
     max-width: 440px;
@@ -177,7 +161,6 @@
     line-height: 1.5;
     color: #fff;
     font-weight: 500;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
     min-height: 24px;
     word-wrap: break-word;
   }
@@ -193,7 +176,6 @@
     opacity: 0;
     transition: opacity 0.4s;
     color: #fff;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
   .island.active .island-mic {
     opacity: 0.9;
@@ -206,9 +188,6 @@
     50% { transform: scale(1.1); opacity: 0.6; }
   }
 
-  /* ============================================================
-     ОСНОВНОЙ ЭКРАН
-     ============================================================ */
   .main {
     text-align: center;
     max-width: 440px;
@@ -233,7 +212,7 @@
     letter-spacing: 6px;
     text-transform: uppercase;
     color: rgba(255,255,255,0.4);
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .auto-detect {
@@ -241,7 +220,7 @@
     border: 1px solid rgba(76,175,80,0.3);
     border-radius: 14px;
     padding: 12px 16px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     font-size: 0.8rem;
     color: #4CAF50;
     display: flex;
@@ -287,7 +266,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    max-height: 340px;
+    max-height: 320px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
@@ -428,15 +407,13 @@
     <button onclick="applyAutoDetect()">Применить</button>
   </div>
 
-  <!-- Шаг 1: Выбор устройства -->
   <div class="device-card" id="step1">
     <h3>📱 Выбери свой iPhone</h3>
     <div class="device-options" id="deviceList">
-      <!-- Заполняется через JS -->
+      <div style="text-align:center;padding:20px;opacity:0.5;">Загрузка...</div>
     </div>
   </div>
 
-  <!-- Шаг 2: Активация -->
   <div class="device-card hidden" id="step2">
     <h3>📳 Вызов ассистента</h3>
     <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
@@ -451,7 +428,6 @@
     <div class="hint" id="hintText">Разреши доступ к датчикам движения</div>
   </div>
 
-  <!-- Шаг 3: Тест -->
   <div class="device-card hidden" id="step3">
     <h3>🎤 Тест ассистента</h3>
     <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
@@ -471,7 +447,7 @@
 // ============================================================
 // СПРАВОЧНИК УСТРОЙСТВ
 // ============================================================
-const DEVICE_DATABASE = [
+var DEVICE_DATABASE = [
   { model: '17',        name: 'iPhone 17',                 w: 402, h: 874, supported: true, year: 2025 },
   { model: '17pro',     name: 'iPhone 17 Pro',             w: 402, h: 874, supported: true, year: 2025 },
   { model: '17promax',  name: 'iPhone 17 Pro Max',         w: 440, h: 956, supported: true, year: 2025 },
@@ -483,84 +459,105 @@ const DEVICE_DATABASE = [
   { model: '15pro',     name: 'iPhone 15 Pro',             w: 393, h: 852, supported: true, year: 2023 },
   { model: '15promax',  name: 'iPhone 15 Pro Max',         w: 430, h: 932, supported: true, year: 2023 },
   { model: '14pro',     name: 'iPhone 14 Pro',             w: 393, h: 852, supported: true, year: 2022 },
-  { model: '14promax',  name: 'iPhone 14 Pro Max',         w: 430, h: 932, supported: true, year: 2022 },
+  { model: '14promax',  name: 'iPhone 14 Pro Max',         w: 430, h: 932, supported: true, year: 2022 }
 ];
 
-let selectedDevice = null;
-let deviceSupported = false;
-let motionEnabled = false;
-let shakeDetected = false;
-let lastX = 0, lastY = 0, lastZ = 0;
-let lastShakeTime = 0;
-const SHAKE_THRESHOLD = 18;
-
 // ============================================================
-// РЕНДЕР СПИСКА УСТРОЙСТВ
+// РЕНДЕР СПИСКА — вызывается сразу, не ждёт load
 // ============================================================
 function renderDeviceList() {
-  const list = document.getElementById('deviceList');
-  const groups = {};
+  try {
+    var list = document.getElementById('deviceList');
+    if (!list) {
+      console.error('❌ deviceList не найден');
+      return;
+    }
 
-  DEVICE_DATABASE.forEach(d => {
-    if (!groups[d.year]) groups[d.year] = [];
-    groups[d.year].push(d);
-  });
+    var groups = {};
+    for (var i = 0; i < DEVICE_DATABASE.length; i++) {
+      var d = DEVICE_DATABASE[i];
+      if (!groups[d.year]) groups[d.year] = [];
+      groups[d.year].push(d);
+    }
 
-  const years = Object.keys(groups).sort((a, b) => b - a);
-  let html = '';
+    var years = Object.keys(groups).sort(function(a, b) { return b - a; });
+    var html = '';
 
-  years.forEach(year => {
-    html += `<div class="device-group">`;
-    html += `<div class="device-group-label">iPhone ${year}</div>`;
-    groups[year].forEach(d => {
-      const badge = d.supported
-        ? '<span class="badge supported">✓ Dynamic Island</span>'
-        : '<span class="badge unsupported">✗ Без острова</span>';
-      html += `
-        <div class="device-option" data-model="${d.model}" onclick="selectDevice('${d.model}', this)">
-          <span class="name">${d.name}</span>
-          ${badge}
-        </div>
-      `;
-    });
-    html += `</div>`;
-  });
+    for (var y = 0; y < years.length; y++) {
+      var year = years[y];
+      html += '<div class="device-group">';
+      html += '<div class="device-group-label">iPhone ' + year + '</div>';
 
-  html += `<div class="device-group">
-    <div class="device-group-label">Другое</div>
-    <div class="device-option" data-model="other" onclick="selectDevice('other', this)">
-      <span class="name">Другой iPhone</span>
-      <span class="badge unsupported">✗ Без острова</span>
-    </div>
-  </div>`;
+      for (var j = 0; j < groups[year].length; j++) {
+        var dev = groups[year][j];
+        var badge = dev.supported
+          ? '<span class="badge supported">✓ Dynamic Island</span>'
+          : '<span class="badge unsupported">✗ Без острова</span>';
 
-  list.innerHTML = html;
+        html += '<div class="device-option" data-model="' + dev.model + '" onclick="selectDevice(\'' + dev.model + '\', this)">';
+        html += '<span class="name">' + dev.name + '</span>';
+        html += badge;
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    html += '<div class="device-group">';
+    html += '<div class="device-group-label">Другое</div>';
+    html += '<div class="device-option" data-model="other" onclick="selectDevice(\'other\', this)">';
+    html += '<span class="name">Другой iPhone</span>';
+    html += '<span class="badge unsupported">✗ Без острова</span>';
+    html += '</div></div>';
+
+    list.innerHTML = html;
+    console.log('✅ Список устройств отрендерен:', years.length, 'групп');
+  } catch (e) {
+    console.error('❌ Ошибка рендера списка:', e);
+  }
 }
+
+// ============================================================
+// СОСТОЯНИЕ
+// ============================================================
+var selectedDevice = null;
+var deviceSupported = false;
+var motionEnabled = false;
+var shakeDetected = false;
+var lastX = 0, lastY = 0, lastZ = 0;
+var lastShakeTime = 0;
+var SHAKE_THRESHOLD = 18;
 
 // ============================================================
 // АВТООПРЕДЕЛЕНИЕ
 // ============================================================
 function autoDetectDevice() {
-  const sw = window.screen.width;
-  const sh = window.screen.height;
-  const isIPhone = /iPhone/.test(navigator.userAgent) ||
+  try {
+    var sw = window.screen.width;
+    var sh = window.screen.height;
+    var isIPhone = /iPhone/.test(navigator.userAgent) ||
                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (!isIPhone) return null;
-  for (const d of DEVICE_DATABASE) {
-    if (sw === d.w && sh === d.h) return d;
+    if (!isIPhone) return null;
+
+    for (var i = 0; i < DEVICE_DATABASE.length; i++) {
+      if (DEVICE_DATABASE[i].w === sw && DEVICE_DATABASE[i].h === sh) {
+        return DEVICE_DATABASE[i];
+      }
+    }
+    return { model: 'unknown', name: 'iPhone (' + sw + '×' + sh + ')', supported: false };
+  } catch (e) {
+    console.error('❌ Ошибка автоопределения:', e);
+    return null;
   }
-  return { model: 'unknown', name: `iPhone (${sw}×${sh})`, supported: false };
 }
 
 function applyAutoDetect() {
-  const info = autoDetectDevice();
+  var info = autoDetectDevice();
   if (!info) return;
-  const el = document.querySelector(`.device-option[data-model="${info.model}"]`);
+  var el = document.querySelector('.device-option[data-model="' + info.model + '"]');
   if (el) {
     selectDevice(info.model, el);
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } else {
-    const other = document.querySelector('.device-option[data-model="other"]');
+    var other = document.querySelector('.device-option[data-model="other"]');
     if (other) selectDevice('other', other);
   }
 }
@@ -569,24 +566,28 @@ function applyAutoDetect() {
 // ВЫБОР УСТРОЙСТВА
 // ============================================================
 function selectDevice(model, el) {
-  document.querySelectorAll('.device-option').forEach(o => o.classList.remove('selected'));
+  var all = document.querySelectorAll('.device-option');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
   if (el) el.classList.add('selected');
+
   selectedDevice = model;
 
-  const supportedModels = ['17', '17pro', '17promax', 'air', '16', '16pro',
-                           '15', '15pro', '15promax', '14pro', '14promax'];
-  deviceSupported = supportedModels.includes(model);
+  var supportedModels = ['17', '17pro', '17promax', 'air', '16', '16pro',
+                         '15', '15pro', '15promax', '14pro', '14promax'];
+  deviceSupported = supportedModels.indexOf(model) !== -1;
 
-  document.getElementById('autoDetect').classList.add('hidden');
+  var autoEl = document.getElementById('autoDetect');
+  if (autoEl) autoEl.classList.add('hidden');
 
-  setTimeout(() => {
+  setTimeout(function() {
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
     document.getElementById('step3').classList.remove('hidden');
+
     if (deviceSupported) {
       updateHint('✅ Устройство поддерживает Dynamic Island. Нажми кнопку ниже.', 'success');
     } else {
-      updateHint('⚠️ Твоё устройство не поддерживает Dynamic Island, но можно протестировать функцию.', 'error');
+      updateHint('⚠️ Устройство не поддерживает Dynamic Island, но можно протестировать.', 'error');
     }
   }, 200);
 }
@@ -601,7 +602,7 @@ async function enableMotion() {
   }
   if (typeof DeviceMotionEvent.requestPermission === 'function') {
     try {
-      const permission = await DeviceMotionEvent.requestPermission();
+      var permission = await DeviceMotionEvent.requestPermission();
       if (permission !== 'granted') {
         updateHint('❌ Доступ к датчикам отклонён', 'error');
         return;
@@ -629,24 +630,25 @@ function disableMotion() {
 
 function onMotion(event) {
   if (!motionEnabled) return;
-  const acc = event.accelerationIncludingGravity;
+  var acc = event.accelerationIncludingGravity;
   if (!acc) return;
-  const x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
-  const delta.text = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
-  lastX = xContent; lastY = y; lastZ = z;
-  if ( =delta > SHAKE_THRESHOLD text;
-) {
-    const now = Date.now();
-     if (now - lastShakeTime > 1500) {
+  var x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
+  var delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
+  lastX = x; lastY = y; lastZ = z;
+  if (delta > SHAKE_THRESHOLD) {
+    var now = Date.now();
+    if (now - lastShakeTime > 1500) {
       lastShakeTime = now;
       triggerAssistant();
     }
   }
 }
 
-function updateHint(text, type = '') {
-  const el = document.getElementById('hintText');
-  el el.className = 'hint' + (type ? ' ' + type : '');
+function updateHint(text, type) {
+  var el = document.getElementById('hintText');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'hint' + (type ? ' ' + type : '');
 }
 
 // ============================================================
@@ -660,18 +662,18 @@ function triggerAssistant() {
 }
 
 function openIsland(text) {
-  const island = document.getElementById('island');
-  const status = document.getElementById('islandStatus');
-  const response = document.getElementById('islandResponse');
+  var island = document.getElementById('island');
+  var status = document.getElementById('islandStatus');
+  var response = document.getElementById('islandResponse');
   island.classList.add('active');
   status.textContent = 'Слушаю';
   status.classList.add('listening');
   response.textContent = text;
-  setTimeout(() => { island.classList.add('expanded'); }, 250);
+  setTimeout(function() { island.classList.add('expanded'); }, 250);
 }
 
 function closeIsland() {
-  const island = document.getElementById('island');
+  var island = document.getElementById('island');
   island.classList.remove('expanded');
   island.classList.remove('active');
   shakeDetected = false;
@@ -686,27 +688,27 @@ function setResponse(text) {
 
 async function startRecognition() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var recognition = new SpeechRecognition();
       recognition.lang = 'ru-RU';
       recognition.interimResults = false;
       recognition.continuous = false;
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+      recognition.onresult = function(event) {
+        var transcript = event.results[0][0].transcript;
         setResponse('Ты сказал: "' + transcript + '"');
-        stream.getTracks().forEach(t => t.stop());
+        stream.getTracks().forEach(function(t) { t.stop(); });
         setTimeout(closeIsland, 4000);
       };
-      recognition.onerror = (event) => {
-        stream.getTracks().forEach(t => t.stop());
+      recognition.onerror = function(event) {
+        stream.getTracks().forEach(function(t) { t.stop(); });
         handleRecognitionError(event.error);
       };
       try { recognition.start(); return; }
-      catch (e) { handleRecognitionError(e.message); stream.getTracks().forEach(t => t.stop()); }
+      catch (e) { handleRecognitionError(e.message); stream.getTracks().forEach(function(t) { t.stop(); }); }
     } else {
-      stream.getTracks().forEach(t => t.stop());
+      stream.getTracks().forEach(function(t) { t.stop(); });
       handleRecognitionError('not-supported');
     }
   } catch (e) {
@@ -724,54 +726,64 @@ function handleRecognitionError(error) {
 }
 
 function sendManual() {
-  const input = document.getElementById('manualInput');
-  const text = input.value.trim();
+  var input = document.getElementById('manualInput');
+  var text = input.value.trim();
   if (!text) return;
   input.value = '';
   openIsland('💬 "' + text + '"');
-  setTimeout(() => {
+  setTimeout(function() {
     setResponse('Привет! Я LoLi, слышу тебя: "' + text + '". Чем помочь?');
   }, 800);
   setTimeout(closeIsland, 5000);
 }
 
-document.getElementById('manualInput').addEventListener('keydown', (e) => {
+// ============================================================
+// СОБЫТИЯ
+// ============================================================
+document.getElementById('manualInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') sendManual();
 });
 
-document.addEventListener('click', (e) => {
-  const island = document.getElementById('island');
+document.addEventListener('click', function(e) {
+  var island = document.getElementById('island');
   if (island.classList.contains('expanded') && !island.contains(e.target)) {
     closeIsland();
   }
 });
 
 // ============================================================
-// ИНИЦИАЛИЗАЦИЯ
+// ЗАПУСК — рендер сразу, не ждём load
 // ============================================================
-window.addEventListener('load', () => {
+(function init() {
   console.log('🌊 LoLOS 27 — Liquid Loll');
 
-  renderDeviceList();
-
-  const detected = autoDetectDevice();
-  if (detected) {
-    const autoEl = document.getElementById('autoDetect');
-    const nameEl = document.getElementById('detectedName');
-    autoEl.classList.remove('hidden');
-    nameEl.textContent = detected.name + (detected.model === 'unknown' ? ' (не точно)' : '');
-    window._autoDetected = detected;
+  // Рендерим список сразу
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderDeviceList);
+  } else {
+    renderDeviceList();
   }
-});
 
-// Запрет pinch-zoom и двойного тапа
-document.addEventListener('gesturestart', e => e.preventDefault());
-let lastTouchEnd = 0;
-document.addEventListener('touchend', e => {
-  const now = Date.now();
-  if (now - lastTouchEnd <= 300) e.preventDefault();
-  lastTouchEnd = now;
-}, false);
+  // Автоопределение
+  function tryAutoDetect() {
+    var detected = autoDetectDevice();
+    if (detected) {
+      var autoEl = document.getElementById('autoDetect');
+      var nameEl = document.getElementById('detectedName');
+      if (autoEl && nameEl) {
+        autoEl.classList.remove('hidden');
+        nameEl.textContent = detected.name + (detected.model === 'unknown' ? ' (не точно)' : '');
+        window._autoDetected = detected;
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryAutoDetect);
+  } else {
+    tryAutoDetect();
+  }
+})();
 </script>
 </body>
 </html>
