@@ -4,207 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>LoLOS 27 — Liquid Loll</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   html, body {
-    background: #1a1a2e !important;
+    background: #0f0f1a;
     height: 100%;
     width: 100%;
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
+    overflow: hidden;
+    overscroll-behavior: none;
     touch-action: manipulation;
   }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
     color: #fff;
-    background: linear-gradient(135deg, #2a2a35 0%, #3a3a45 50%, #2a2a35 100%) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 20px;
     position: relative;
   }
 
-  .island-container {
+  /* ============================================================
+     РАМКА — сине-фиолетовая подсветка при тряске
+     ============================================================ */
+  .frame {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 47px) - 38px);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-  }
-
-  .island {
-    position: relative;
-    width: 126px;
-    height: 37px;
-    background: #000;
-    border-radius: 20px;
-    overflow: hidden;
-    transition: all 0.55s cubic-bezier(0.34, 1.2, 0.64, 1);
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .island.active {
-    width: 340px;
-    height: 340px;
-    border-radius: 50%;
-  }
-  .island.expanded {
-    width: 92vw;
-    max-width: 440px;
-    height: auto;
-    min-height: 180px;
-    border-radius: 48px;
-    padding: 28px 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .island-wave {
-    position: absolute;
     inset: 0;
-    background: linear-gradient(180deg,
-      #7b5ea7 0%, #a78bfa 20%, #feca57 45%,
-      #feca57 55%, #a78bfa 80%, #7b5ea7 100%);
-    background-size: 100% 300%;
-    animation: waveUpDown 3s ease-in-out infinite;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 1;
-    border-radius: inherit;
-  }
-  .island.active .island-wave,
-  .island.expanded .island-wave { opacity: 0.85; }
-
-  @keyframes waveUpDown {
-    0%   { background-position: 50% 0%; }
-    50%  { background-position: 50% 100%; }
-    100% { background-position: 50% 0%; }
-  }
-
-  .island-gloss {
-    position: absolute;
-    top: 8%; left: 50%;
-    transform: translateX(-50%);
-    width: 70%; height: 30%;
-    background: radial-gradient(ellipse at center,
-      rgba(255,255,255,0.6) 0%,
-      rgba(255,255,255,0.2) 30%,
-      transparent 70%);
-    filter: blur(12px);
-    opacity: 0;
-    transition: opacity 0.5s;
-    z-index: 3;
     pointer-events: none;
-  }
-  .island.active .island-gloss,
-  .island.expanded .island-gloss { opacity: 1; }
-
-  .island-shadow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 120%,
-      rgba(0,0,0,0.8) 0%, transparent 60%);
-    z-index: 2;
-    pointer-events: none;
+    z-index: 999;
     opacity: 0;
-    transition: opacity 0.5s;
+    transition: opacity 0.4s ease;
   }
-  .island.active .island-shadow,
-  .island.expanded .island-shadow { opacity: 0.7; }
 
-  .island-content {
-    position: relative;
-    z-index: 4;
-    display: none;
-    width: 100%;
-    text-align: center;
+  .frame.active {
+    opacity: 1;
   }
-  .island.expanded .island-content { display: block; }
 
-  .island-status {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 12px;
-  }
-  .island-status.listening::after {
+  /* Свечение по краям */
+  .frame::before {
     content: '';
-    display: inline-block;
-    width: 6px; height: 6px;
-    background: #fff;
-    border-radius: 50%;
-    margin-left: 8px;
-    animation: dotPulse 1s ease-in-out infinite;
-  }
-  @keyframes dotPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(1.4); }
-  }
-
-  .island-response {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #fff;
-    font-weight: 500;
-    min-height: 24px;
-    word-wrap: break-word;
-  }
-
-  .island-mic {
     position: absolute;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-    font-size: 3rem;
-    opacity: 0;
-    transition: opacity 0.4s;
-    color: #fff;
-  }
-  .island.active .island-mic {
-    opacity: 0.9;
-    animation: micPulse 1.5s ease-in-out infinite;
-  }
-  .island.expanded .island-mic { opacity: 0; }
-
-  @keyframes micPulse {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.1); opacity: 0.6; }
+    box-shadow:
+      inset 0 0 0 4px #6b4ee6,
+      inset 0 0 40px rgba(107, 78, 230, 0.6),
+      inset 0 0 100px rgba(107, 78, 230, 0.3);
+    border-radius: 12px;
+    animation: framePulse 2s ease-in-out infinite;
   }
 
-  .main {
+  /* Внешнее свечение */
+  .frame::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at center,
+      transparent 60%,
+      rgba(107, 78, 230, 0.3) 100%);
+    filter: blur(20px);
+    animation: framePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes framePulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  /* Внутреннее свечение при разговоре (громкость) */
+  .frame.speaking::before {
+    box-shadow:
+      inset 0 0 0 4px #a78bfa,
+      inset 0 0 60px rgba(167, 139, 250, 0.8),
+      inset 0 0 150px rgba(167, 139, 250, 0.4);
+  }
+
+  /* ============================================================
+     ЦЕНТРАЛЬНЫЙ ЛОГОТИП (пока ничего не происходит)
+     ============================================================ */
+  .center-logo {
     text-align: center;
-    max-width: 440px;
-    width: 100%;
-    position: relative;
-    z-index: 1;
+    transition: opacity 0.4s, transform 0.4s;
+  }
+
+  .center-logo.hidden {
+    opacity: 0;
+    transform: scale(0.9);
   }
 
   .logo {
-    font-size: 2.4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     letter-spacing: 2px;
     background: linear-gradient(135deg, #a78bfa, #feca57);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .subtitle {
@@ -212,578 +110,603 @@
     letter-spacing: 6px;
     text-transform: uppercase;
     color: rgba(255,255,255,0.4);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
-  .auto-detect {
-    background: rgba(76,175,80,0.1);
-    border: 1px solid rgba(76,175,80,0.3);
-    border-radius: 14px;
-    padding: 12px 16px;
-    margin-bottom: 14px;
-    font-size: 0.8rem;
-    color: #4CAF50;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .auto-detect .detected-name { font-weight: 600; }
-  .auto-detect button {
-    background: rgba(76,175,80,0.2);
-    border: 1px solid rgba(76,175,80,0.4);
-    color: #4CAF50;
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  .device-card {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px;
-    padding: 20px 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-  }
-
-  .device-card h3 {
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 14px;
-    color: rgba(255,255,255,0.7);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    text-align: left;
-  }
-
-  .device-options {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 320px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding-right: 4px;
-  }
-  .device-options::-webkit-scrollbar { width: 3px; }
-  .device-options::-webkit-scrollbar-thumb {
-    background: rgba(167,139,250,0.3);
-    border-radius: 10px;
-  }
-
-  .device-group { margin-bottom: 6px; }
-  .device-group-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: rgba(167,139,250,0.8);
-    padding: 8px 4px 4px;
-    text-align: left;
-  }
-
-  .device-option {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .instruction {
     font-size: 0.9rem;
-    color: #fff;
-    text-align: left;
-    gap: 10px;
-  }
-  .device-option:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(167,139,250,0.4);
-  }
-  .device-option.selected {
-    background: rgba(167,139,250,0.15);
-    border-color: #a78bfa;
-    box-shadow: 0 0 20px rgba(167,139,250,0.2);
-  }
-  .device-option .name { font-weight: 500; flex: 1; }
-  .device-option .badge {
-    font-size: 0.6rem;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-  .device-option .badge.supported {
-    background: rgba(76,175,80,0.2);
-    color: #4CAF50;
-  }
-  .device-option .badge.unsupported {
-    background: rgba(255,107,107,0.15);
-    color: #ff6b6b;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    padding: 0 30px;
   }
 
-  .btn {
-    width: 100%;
-    padding: 16px 24px;
+  .instruction .emoji {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: shakeEmoji 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shakeEmoji {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+  }
+
+  /* Кнопка запуска (нужна для разрешения датчиков) */
+  .start-btn {
+    margin-top: 24px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #6b4ee6, #a78bfa);
+    color: #fff;
     border: none;
     border-radius: 16px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
     font-family: inherit;
-    margin-bottom: 10px;
+    box-shadow: 0 8px 30px rgba(107, 78, 230, 0.5);
+    transition: all 0.3s;
   }
-  .btn-primary {
-    background: linear-gradient(135deg, #7b5ea7, #a78bfa);
+
+  .start-btn:active { transform: scale(0.96); }
+
+  .start-btn.hidden { display: none; }
+
+  /* ============================================================
+     НИЖНЯЯ ПАНЕЛЬ — что сказал + ответ
+     ============================================================ */
+  .bottom-panel {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .bottom-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .bubble {
+    background: rgba(20, 20, 40, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(107, 78, 230, 0.3);
+    border-radius: 18px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    animation: bubbleIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .bubble .label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(167, 139, 250, 0.8);
+    margin-bottom: 6px;
+  }
+
+  .bubble .text {
+    font-size: 1rem;
+    line-height: 1.4;
     color: #fff;
-    box-shadow: 0 8px 30px rgba(123,94,167,0.4);
+    word-wrap: break-word;
   }
-  .btn-primary:active { transform: scale(0.97); }
-  .btn-secondary {
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.12);
+
+  /* Пузырь "ты сказал" */
+  .bubble.user {
+    border-color: rgba(167, 139, 250, 0.4);
   }
-  .btn-secondary:active { transform: scale(0.97); }
 
-  .hint {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.4);
-    line-height: 1.6;
-    margin-top: 12px;
-    text-align: center;
+  .bubble.user .label {
+    color: rgba(167, 139, 250, 1);
   }
-  .hint.error { color: #ff6b6b; }
-  .hint.success { color: #4CAF50; }
 
-  .hidden { display: none !important; }
+  /* Пузырь "ответ" */
+  .bubble.bot {
+    border-color: rgba(254, 202, 87, 0.3);
+  }
 
-  .manual-input {
-    width: 100%;
-    padding: 14px;
-    margin-top: 12px;
+  .bubble.bot .label {
+    color: rgba(254, 202, 87, 0.9);
+  }
+
+  /* Точки "печатает" */
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .typing span {
+    width: 6px;
+    height: 6px;
+    background: rgba(167, 139, 250, 0.8);
+    border-radius: 50%;
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Индикатор "слушаю" */
+  .listening-indicator {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 20, 40, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(107, 78, 230, 0.4);
+    border-radius: 30px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.8);
+    z-index: 1001;
+    opacity: 0;
+    transform: translate(-50%, -20px);
+    transition: all 0.4s ease;
+    pointer-events: none;
+  }
+
+  .listening-indicator.active {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .listening-dot {
+    width: 10px;
+    height: 10px;
+    background: #a78bfa;
+    border-radius: 50%;
+    animation: listeningPulse 1s ease-in-out infinite;
+  }
+
+  @keyframes listeningPulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.6); }
+    50% { opacity: 0.6; transform: scale(1.2); box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); }
+  }
+
+  /* Ручной ввод — фолбэк */
+  .manual-wrap {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    z-index: 1001;
+    display: none;
+    gap: 8px;
+  }
+
+  .manual-wrap.active {
+    display: flex;
+  }
+
+  .manual-wrap input {
+    flex: 1;
+    padding: 14px 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(107, 78, 230, 0.4);
+    background: rgba(20, 20, 40, 0.9);
     color: #fff;
     font-size: 1rem;
     font-family: inherit;
     outline: none;
   }
-  .manual-input:focus { border-color: #a78bfa; }
+
+  .manual-wrap input:focus {
+    border-color: #a78bfa;
+  }
+
+  .manual-wrap button {
+    padding: 0 20px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #6b4ee6, #a78bfa);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
 </style>
 </head>
 <body>
 
-<div class="island-container">
-  <div class="island" id="island">
-    <div class="island-wave"></div>
-    <div class="island-shadow"></div>
-    <div class="island-gloss"></div>
-    <div class="island-mic">🎤</div>
-    <div class="island-content" id="islandContent">
-      <div class="island-status" id="islandStatus">Слушаю</div>
-      <div class="island-response" id="islandResponse"></div>
-    </div>
+<!-- Рамка подсветки -->
+<div class="frame" id="frame"></div>
+
+<!-- Индикатор "слушаю" -->
+<div class="listening-indicator" id="listeningIndicator">
+  <div class="listening-dot"></div>
+  <span>Слушаю...</span>
+</div>
+
+<!-- Центральный логотип -->
+<div class="center-logo" id="centerLogo">
+  <div class="logo">LoLOS 27</div>
+  <div class="subtitle">Liquid Loll</div>
+  <div class="instruction">
+    <span class="emoji">📳</span>
+    Нажми кнопку ниже, разреши доступ к датчикам и тряхни телефон
+  </div>
+  <button class="start-btn" id="startBtn" onclick="enableMotion()">
+    📳 Активировать
+  </button>
+</div>
+
+<!-- Нижняя панель: что сказал + ответ -->
+<div class="bottom-panel" id="bottomPanel">
+  <div class="bubble user" id="userBubble" style="display:none;">
+    <div class="label">🎤 Ты сказал</div>
+    <div class="text" id="userText"></div>
+  </div>
+  <div class="bubble bot" id="botBubble" style="display:none;">
+    <div class="label">🛒 LoLi</div>
+    <div class="text" id="botText"></div>
   </div>
 </div>
 
-<div class="main">
-  <div class="logo">LoLOS 27</div>
-  <div class="subtitle">Liquid Loll</div>
-
-  <div class="auto-detect hidden" id="autoDetect">
-    <span>Обнаружено: <span class="detected-name" id="detectedName">—</span></span>
-    <button onclick="applyAutoDetect()">Применить</button>
-  </div>
-
-  <div class="device-card" id="step1">
-    <h3>📱 Выбери свой iPhone</h3>
-    <div class="device-options" id="deviceList">
-      <div style="text-align:center;padding:20px;opacity:0.5;">Загрузка...</div>
-    </div>
-  </div>
-
-  <div class="device-card hidden" id="step2">
-    <h3>📳 Вызов ассистента</h3>
-    <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
-      Нажми кнопку, разреши доступ к датчикам движения, и тряхни телефон.
-    </p>
-    <button class="btn btn-primary" id="enableBtn" onclick="enableMotion()">
-      📳 Включить вызов
-    </button>
-    <button class="btn btn-secondary hidden" id="disableBtn" onclick="disableMotion()">
-      ✖ Отключить
-    </button>
-    <div class="hint" id="hintText">Разреши доступ к датчикам движения</div>
-  </div>
-
-  <div class="device-card hidden" id="step3">
-    <h3>🎤 Тест ассистента</h3>
-    <p style="font-size:0.85rem;opacity:0.6;margin-bottom:16px;line-height:1.5;text-align:left;">
-      Тряхни телефон или нажми кнопку ниже.
-    </p>
-    <button class="btn btn-primary" onclick="triggerAssistant()">
-      🎤 Вызвать ассистента
-    </button>
-    <input type="text" id="manualInput" class="manual-input" placeholder="Или напиши здесь...">
-    <button class="btn btn-secondary" onclick="sendManual()" style="margin-top:10px;">
-      ➤ Отправить
-    </button>
-  </div>
+<!-- Ручной ввод -->
+<div class="manual-wrap" id="manualWrap">
+  <input type="text" id="manualInput" placeholder="Напиши здесь...">
+  <button onclick="sendManual()">➤</button>
 </div>
 
 <script>
-// ============================================================
-// СПРАВОЧНИК УСТРОЙСТВ
-// ============================================================
-var DEVICE_DATABASE = [
-  { model: '17',        name: 'iPhone 17',                 w: 402, h: 874, supported: true, year: 2025 },
-  { model: '17pro',     name: 'iPhone 17 Pro',             w: 402, h: 874, supported: true, year: 2025 },
-  { model: '17promax',  name: 'iPhone 17 Pro Max',         w: 440, h: 956, supported: true, year: 2025 },
-  { model: 'air',       name: 'iPhone Air',                w: 420, h: 912, supported: true, year: 2025 },
-  { model: '16',        name: 'iPhone 16 / 16 Plus',       w: 393, h: 852, supported: true, year: 2024 },
-  { model: '16pro',     name: 'iPhone 16 Pro / Pro Max',   w: 402, h: 874, supported: true, year: 2024 },
-  { model: '16e',       name: 'iPhone 16e',                w: 390, h: 844, supported: false, year: 2024 },
-  { model: '15',        name: 'iPhone 15 / 15 Plus',       w: 393, h: 852, supported: true, year: 2023 },
-  { model: '15pro',     name: 'iPhone 15 Pro',             w: 393, h: 852, supported: true, year: 2023 },
-  { model: '15promax',  name: 'iPhone 15 Pro Max',         w: 430, h: 932, supported: true, year: 2023 },
-  { model: '14pro',     name: 'iPhone 14 Pro',             w: 393, h: 852, supported: true, year: 2022 },
-  { model: '14promax',  name: 'iPhone 14 Pro Max',         w: 430, h: 932, supported: true, year: 2022 }
-];
+  // ============================================================
+  // СОСТОЯНИЕ
+  // ============================================================
+  var motionEnabled = false;
+  var isProcessing = false;
+  var lastX = 0, lastY = 0, lastZ = 0;
+  var lastShakeTime = 0;
+  var SHAKE_THRESHOLD = 18;
 
-// ============================================================
-// РЕНДЕР СПИСКА — вызывается сразу, не ждёт load
-// ============================================================
-function renderDeviceList() {
-  try {
-    var list = document.getElementById('deviceList');
-    if (!list) {
-      console.error('❌ deviceList не найден');
+  // ============================================================
+  // АКТИВАЦИЯ ДАТЧИКОВ
+  // ============================================================
+  async function enableMotion() {
+    var btn = document.getElementById('startBtn');
+
+    if (typeof DeviceMotionEvent === 'undefined') {
+      btn.textContent = '❌ Датчики недоступны';
       return;
     }
 
-    var groups = {};
-    for (var i = 0; i < DEVICE_DATABASE.length; i++) {
-      var d = DEVICE_DATABASE[i];
-      if (!groups[d.year]) groups[d.year] = [];
-      groups[d.year].push(d);
-    }
-
-    var years = Object.keys(groups).sort(function(a, b) { return b - a; });
-    var html = '';
-
-    for (var y = 0; y < years.length; y++) {
-      var year = years[y];
-      html += '<div class="device-group">';
-      html += '<div class="device-group-label">iPhone ' + year + '</div>';
-
-      for (var j = 0; j < groups[year].length; j++) {
-        var dev = groups[year][j];
-        var badge = dev.supported
-          ? '<span class="badge supported">✓ Dynamic Island</span>'
-          : '<span class="badge unsupported">✗ Без острова</span>';
-
-        html += '<div class="device-option" data-model="' + dev.model + '" onclick="selectDevice(\'' + dev.model + '\', this)">';
-        html += '<span class="name">' + dev.name + '</span>';
-        html += badge;
-        html += '</div>';
-      }
-      html += '</div>';
-    }
-
-    html += '<div class="device-group">';
-    html += '<div class="device-group-label">Другое</div>';
-    html += '<div class="device-option" data-model="other" onclick="selectDevice(\'other\', this)">';
-    html += '<span class="name">Другой iPhone</span>';
-    html += '<span class="badge unsupported">✗ Без острова</span>';
-    html += '</div></div>';
-
-    list.innerHTML = html;
-    console.log('✅ Список устройств отрендерен:', years.length, 'групп');
-  } catch (e) {
-    console.error('❌ Ошибка рендера списка:', e);
-  }
-}
-
-// ============================================================
-// СОСТОЯНИЕ
-// ============================================================
-var selectedDevice = null;
-var deviceSupported = false;
-var motionEnabled = false;
-var shakeDetected = false;
-var lastX = 0, lastY = 0, lastZ = 0;
-var lastShakeTime = 0;
-var SHAKE_THRESHOLD = 18;
-
-// ============================================================
-// АВТООПРЕДЕЛЕНИЕ
-// ============================================================
-function autoDetectDevice() {
-  try {
-    var sw = window.screen.width;
-    var sh = window.screen.height;
-    var isIPhone = /iPhone/.test(navigator.userAgent) ||
-                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if (!isIPhone) return null;
-
-    for (var i = 0; i < DEVICE_DATABASE.length; i++) {
-      if (DEVICE_DATABASE[i].w === sw && DEVICE_DATABASE[i].h === sh) {
-        return DEVICE_DATABASE[i];
-      }
-    }
-    return { model: 'unknown', name: 'iPhone (' + sw + '×' + sh + ')', supported: false };
-  } catch (e) {
-    console.error('❌ Ошибка автоопределения:', e);
-    return null;
-  }
-}
-
-function applyAutoDetect() {
-  var info = autoDetectDevice();
-  if (!info) return;
-  var el = document.querySelector('.device-option[data-model="' + info.model + '"]');
-  if (el) {
-    selectDevice(info.model, el);
-  } else {
-    var other = document.querySelector('.device-option[data-model="other"]');
-    if (other) selectDevice('other', other);
-  }
-}
-
-// ============================================================
-// ВЫБОР УСТРОЙСТВА
-// ============================================================
-function selectDevice(model, el) {
-  var all = document.querySelectorAll('.device-option');
-  for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
-  if (el) el.classList.add('selected');
-
-  selectedDevice = model;
-
-  var supportedModels = ['17', '17pro', '17promax', 'air', '16', '16pro',
-                         '15', '15pro', '15promax', '14pro', '14promax'];
-  deviceSupported = supportedModels.indexOf(model) !== -1;
-
-  var autoEl = document.getElementById('autoDetect');
-  if (autoEl) autoEl.classList.add('hidden');
-
-  setTimeout(function() {
-    document.getElementById('step1').classList.add('hidden');
-    document.getElementById('step2').classList.remove('hidden');
-    document.getElementById('step3').classList.remove('hidden');
-
-    if (deviceSupported) {
-      updateHint('✅ Устройство поддерживает Dynamic Island. Нажми кнопку ниже.', 'success');
-    } else {
-      updateHint('⚠️ Устройство не поддерживает Dynamic Island, но можно протестировать.', 'error');
-    }
-  }, 200);
-}
-
-// ============================================================
-// ДАТЧИКИ
-// ============================================================
-async function enableMotion() {
-  if (typeof DeviceMotionEvent === 'undefined') {
-    updateHint('❌ Браузер не поддерживает датчики движения', 'error');
-    return;
-  }
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    try {
-      var permission = await DeviceMotionEvent.requestPermission();
-      if (permission !== 'granted') {
-        updateHint('❌ Доступ к датчикам отклонён', 'error');
+    // iOS 13+ требует разрешение
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        var permission = await DeviceMotionEvent.requestPermission();
+        if (permission !== 'granted') {
+          btn.textContent = '❌ Доступ отклонён';
+          return;
+        }
+      } catch (e) {
+        btn.textContent = '❌ Ошибка: ' + e.message;
         return;
       }
-    } catch (e) {
-      updateHint('❌ Ошибка: ' + e.message, 'error');
-      return;
     }
-  }
-  window.addEventListener('devicemotion', onMotion);
-  motionEnabled = true;
-  document.getElementById('enableBtn').classList.add('hidden');
-  document.getElementById('disableBtn').classList.remove('hidden');
-  updateHint('✅ Датчики активны! Тряхни телефон.', 'success');
-}
 
-function disableMotion() {
-  window.removeEventListener('devicemotion', onMotion);
-  motionEnabled = false;
-  document.getElementById('enableBtn').classList.remove('hidden');
-  document.getElementById('disableBtn').classList.add('hidden');
-  closeIsland();
-  updateHint('Датчики отключены.');
-}
+    window.addEventListener('devicemotion', onMotion);
+    motionEnabled = true;
 
-function onMotion(event) {
-  if (!motionEnabled) return;
-  var acc = event.accelerationIncludingGravity;
-  if (!acc) return;
-  var x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
-  var delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
-  lastX = x; lastY = y; lastZ = z;
-  if (delta > SHAKE_THRESHOLD) {
-    var now = Date.now();
-    if (now - lastShakeTime > 1500) {
-      lastShakeTime = now;
-      triggerAssistant();
-    }
-  }
-}
+    btn.classList.add('hidden');
 
-function updateHint(text, type) {
-  var el = document.getElementById('hintText');
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'hint' + (type ? ' ' + type : '');
-}
+    var logo = document.getElementById('centerLogo');
+    logo.querySelector('.instruction').innerHTML =
+      '<span class="emoji">✅</span>Датчики активны!<br>Тряхни телефон';
 
-// ============================================================
-// АССИСТЕНТ
-// ============================================================
-function triggerAssistant() {
-  if (shakeDetected) return;
-  shakeDetected = true;
-  openIsland('🎤 Слушаю...');
-  startRecognition();
-}
-
-function openIsland(text) {
-  var island = document.getElementById('island');
-  var status = document.getElementById('islandStatus');
-  var response = document.getElementById('islandResponse');
-  island.classList.add('active');
-  status.textContent = 'Слушаю';
-  status.classList.add('listening');
-  response.textContent = text;
-  setTimeout(function() { island.classList.add('expanded'); }, 250);
-}
-
-function closeIsland() {
-  var island = document.getElementById('island');
-  island.classList.remove('expanded');
-  island.classList.remove('active');
-  shakeDetected = false;
-  document.getElementById('islandStatus').classList.remove('listening');
-}
-
-function setResponse(text) {
-  document.getElementById('islandStatus').textContent = 'Ответ';
-  document.getElementById('islandStatus').classList.remove('listening');
-  document.getElementById('islandResponse').textContent = text;
-}
-
-async function startRecognition() {
-  try {
-    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      var recognition = new SpeechRecognition();
-      recognition.lang = 'ru-RU';
-      recognition.interimResults = false;
-      recognition.continuous = false;
-      recognition.onresult = function(event) {
-        var transcript = event.results[0][0].transcript;
-        setResponse('Ты сказал: "' + transcript + '"');
-        stream.getTracks().forEach(function(t) { t.stop(); });
-        setTimeout(closeIsland, 4000);
-      };
-      recognition.onerror = function(event) {
-        stream.getTracks().forEach(function(t) { t.stop(); });
-        handleRecognitionError(event.error);
-      };
-      try { recognition.start(); return; }
-      catch (e) { handleRecognitionError(e.message); stream.getTracks().forEach(function(t) { t.stop(); }); }
-    } else {
-      stream.getTracks().forEach(function(t) { t.stop(); });
-      handleRecognitionError('not-supported');
-    }
-  } catch (e) {
-    setResponse('🎤 Напиши текст в поле ниже');
-    setTimeout(closeIsland, 3000);
-  }
-}
-
-function handleRecognitionError(error) {
-  if (error === 'service-not-allowed') setResponse('⚠️ Микрофон недоступен. Используй поле ниже.');
-  else if (error === 'not-allowed') setResponse('⚠️ Нет доступа к микрофону.');
-  else if (error === 'no-speech') setResponse('🤔 Ничего не услышал.');
-  else setResponse('❌ Ошибка: ' + error);
-  setTimeout(closeIsland, 3500);
-}
-
-function sendManual() {
-  var input = document.getElementById('manualInput');
-  var text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  openIsland('💬 "' + text + '"');
-  setTimeout(function() {
-    setResponse('Привет! Я LoLi, слышу тебя: "' + text + '". Чем помочь?');
-  }, 800);
-  setTimeout(closeIsland, 5000);
-}
-
-// ============================================================
-// СОБЫТИЯ
-// ============================================================
-document.getElementById('manualInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') sendManual();
-});
-
-document.addEventListener('click', function(e) {
-  var island = document.getElementById('island');
-  if (island.classList.contains('expanded') && !island.contains(e.target)) {
-    closeIsland();
-  }
-});
-
-// ============================================================
-// ЗАПУСК — рендер сразу, не ждём load
-// ============================================================
-(function init() {
-  console.log('🌊 LoLOS 27 — Liquid Loll');
-
-  // Рендерим список сразу
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderDeviceList);
-  } else {
-    renderDeviceList();
+    console.log('✅ Датчики активированы');
   }
 
-  // Автоопределение
-  function tryAutoDetect() {
-    var detected = autoDetectDevice();
-    if (detected) {
-      var autoEl = document.getElementById('autoDetect');
-      var nameEl = document.getElementById('detectedName');
-      if (autoEl && nameEl) {
-        autoEl.classList.remove('hidden');
-        nameEl.textContent = detected.name + (detected.model === 'unknown' ? ' (не точно)' : '');
-        window._autoDetected = detected;
+  // ============================================================
+  // ДЕТЕКТ ТРЯСКИ
+  // ============================================================
+  function onMotion(event) {
+    if (!motionEnabled || isProcessing) return;
+
+    var acc = event.accelerationIncludingGravity;
+    if (!acc) return;
+
+    var x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
+    var delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
+    lastX = x; lastY = y; lastZ = z;
+
+    if (delta > SHAKE_THRESHOLD) {
+      var now = Date.now();
+      if (now - lastShakeTime > 2000) {
+        lastShakeTime = now;
+        triggerAssistant();
       }
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryAutoDetect);
-  } else {
-    tryAutoDetect();
+  // ============================================================
+  // ЗАПУСК АССИСТЕНТА
+  // ============================================================
+  function triggerAssistant() {
+    if (isProcessing) return;
+    isProcessing = true;
+
+    // 1. Показываем сине-фиолетовую рамку
+    document.getElementById('frame').classList.add('active');
+
+    // 2. Прячем логотип
+    document.getElementById('centerLogo').classList.add('hidden');
+
+    // 3. Показываем индикатор "Слушаю"
+    document.getElementById('listeningIndicator').classList.add('active');
+
+    // 4. Очищаем панель
+    document.getElementById('bottomPanel').classList.remove('active');
+    document.getElementById('userBubble').style.display = 'none';
+    document.getElementById('botBubble').style.display = 'none';
+
+    // 5. Стартуем распознавание
+    startRecognition();
   }
-})();
+
+  // ============================================================
+  // РАСПОЗНАВАНИЕ РЕЧИ
+  // ============================================================
+  function startRecognition() {
+    // Проверяем поддержку
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SR) {
+      // Нет поддержки — показываем ручной ввод
+      showManualInput('⚠️ Микрофон недоступен. Напиши текстом.');
+      return;
+    }
+
+    var recognition = new SR();
+    recognition.lang = 'ru-RU';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 1;
+
+    var gotResult = false;
+    var silenceTimer = setTimeout(function() {
+      // Если через 10 секунд ничего не услышали — предлагаем ручной ввод
+      if (!gotResult) {
+        try { recognition.stop(); } catch (e) {}
+        showManualInput('🤔 Ничего не услышал. Напиши текстом.');
+      }
+    }, 10000);
+
+    recognition.onresult = function(event) {
+      gotResult = true;
+      clearTimeout(silenceTimer);
+      var transcript = event.results[0][0].transcript;
+      handleUserSpeech(transcript);
+    };
+
+    recognition.onerror = function(event) {
+      clearTimeout(silenceTimer);
+      console.error('Ошибка распознавания:', event.error);
+
+      if (event.error === 'not-allowed') {
+        showManualInput('⚠️ Нет доступа к микрофону. Напиши текстом.');
+      } else if (event.error === 'service-not-allowed') {
+        showManualInput('⚠️ Сервис распознавания недоступен. Напиши текстом.');
+      } else if (event.error === 'no-speech') {
+        showManualInput('🤔 Ничего не услышал. Напиши текстом.');
+      } else {
+        showManualInput('❌ Ошибка: ' + event.error + '. Напиши текстом.');
+      }
+    };
+
+    recognition.onend = function() {
+      clearTimeout(silenceTimer);
+      if (!gotResult) {
+        // Ничего не распознали — показываем ручной ввод
+        showManualInput('🤔 Не расслышал. Напиши текстом.');
+      }
+    };
+
+    try {
+      recognition.start();
+      console.log('🎤 Слушаю...');
+    } catch (e) {
+      clearTimeout(silenceTimer);
+      showManualInput('❌ Не удалось запустить микрофон. Напиши текстом.');
+    }
+  }
+
+  // ============================================================
+  // ОБРАБОТКА ГОЛОСА — показываем что сказал + отвечаем
+  // ============================================================
+  function handleUserSpeech(text) {
+    // Убираем индикатор "Слушаю"
+    document.getElementById('listeningIndicator').classList.remove('active');
+
+    // Показываем, что сказал пользователь
+    document.getElementById('userText').textContent = text;
+    document.getElementById('userBubble').style.display = 'block';
+
+    // Показываем панель
+    document.getElementById('bottomPanel').classList.add('active');
+
+    // Даём боту "подумать" и отвечаем
+    setTimeout(function() {
+      showBotTyping();
+    }, 400);
+
+    setTimeout(function() {
+      showBotResponse(text);
+    }, 1800);
+  }
+
+  // ============================================================
+  // БОТ "ПЕЧАТАЕТ"
+  // ============================================================
+  function showBotTyping() {
+    var botBubble = document.getElementById('botBubble');
+    var botText = document.getElementById('botText');
+    botBubble.style.display = 'block';
+    botText.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  }
+
+  // ============================================================
+  // ОТВЕТ БОТА
+  // ============================================================
+  function showBotResponse(userSaid) {
+    var answer = generateAnswer(userSaid);
+    document.getElementById('botText').textContent = answer;
+
+    // Небольшая анимация "говорит"
+    var frame = document.getElementById('frame');
+    frame.classList.add('speaking');
+
+    // Озвучка (если поддерживается)
+    speak(answer);
+
+    setTimeout(function() {
+      frame.classList.remove('speaking');
+    }, 3000);
+
+    // Через 6 секунд закрываем всё
+    setTimeout(closeAll, 6000);
+  }
+
+  // ============================================================
+  // ГЕНЕРАТОР ОТВЕТА (заглушка — можно подключить Groq/GigaChat)
+  // ============================================================
+  function generateAnswer(userText) {
+    var t = userText.toLowerCase();
+
+    if (t.indexOf('привет') !== -1 || t.indexOf('здравствуй') !== -1) {
+      return 'Привет! 🛒 Я LoLi. Чем могу помочь?';
+    }
+    if (t.indexOf('как дела') !== -1 || t.indexOf('как ты') !== -1) {
+      return 'Отлично! Всегда рада помочь 😊';
+    }
+    if (t.indexOf('время') !== -1 || t.indexOf('час') !== -1) {
+      var now = new Date();
+      return 'Сейчас ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+    }
+    if (t.indexOf('погод') !== -1) {
+      return 'К сожалению, погоду пока не умею показывать 🌤️';
+    }
+    if (t.indexOf('имя') !== -1 || t.indexOf('как тебя') !== -1) {
+      return 'Меня зовут LoLi! 🛒 Я твой ассистент в LoLOS 27.';
+    }
+    if (t.indexOf('спасибо') !== -1) {
+      return 'Всегда пожалуйста! 😊';
+    }
+    if (t.indexOf('пока') !== -1 || t.indexOf('до свидания') !== -1) {
+      return 'Пока! Буду ждать следующего вызова 👋';
+    }
+
+    // По умолчанию
+    var answers = [
+      'Понял тебя! Говоришь: "' + userText + '". Чем ещё помочь?',
+      'Интересно! Расскажи подробнее 🤔',
+      'Я тебя услышала: "' + userText + '"',
+      'Принято! Что делаем дальше?'
+    ];
+    return answers[Math.floor(Math.random() * answers.length)];
+  }
+
+  // ============================================================
+  // ОЗВУЧКА ОТВЕТА
+  // ============================================================
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+
+    try {
+      window.speechSynthesis.cancel();
+      var utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.1;
+      utterance.volume = 1;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Озвучка недоступна:', e);
+    }
+  }
+
+  // ============================================================
+  // РУЧНОЙ ВВОД (фолбэк)
+  // ============================================================
+  function showManualInput(message) {
+    document.getElementById('listeningIndicator').classList.remove('active');
+
+    var wrap = document.getElementById('manualWrap');
+    wrap.classList.add('active');
+
+    var input = document.getElementById('manualInput');
+    input.placeholder = message || 'Напиши здесь...';
+    input.focus();
+
+    console.log('📝 Ручной ввод:', message);
+  }
+
+  function sendManual() {
+    var input = document.getElementById('manualInput');
+    var text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    document.getElementById('manualWrap').classList.remove('active');
+
+    handleUserSpeech(text);
+  }
+
+  document.getElementById('manualInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendManual();
+  });
+
+  // ============================================================
+  // ЗАКРЫТИЕ
+  // ============================================================
+  function closeAll() {
+    document.getElementById('frame').classList.remove('active');
+    document.getElementById('bottomPanel').classList.remove('active');
+    document.getElementById('centerLogo').classList.remove('hidden');
+
+    setTimeout(function() {
+      document.getElementById('userBubble').style.display = 'none';
+      document.getElementById('botBubble').style.display = 'none';
+      isProcessing = false;
+    }, 400);
+  }
+
+  // Тап по экрану — закрыть, если открыто
+  document.addEventListener('click', function(e) {
+    if (isProcessing && !e.target.closest('.manual-wrap') && !e.target.closest('.start-btn')) {
+      closeAll();
+    }
+  });
+
+  // ============================================================
+  // ИНИЦИАЛИЗАЦИЯ
+  // ============================================================
+  console.log('🌊 LoLOS 27 — Liquid Loll');
+  console.log('📳 Нажми "Активировать" и тряхни телефон');
 </script>
 </body>
 </html>
